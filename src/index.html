@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Holidays countdown</title>
+    <meta name="description" content="Holidays countdown">
+    <meta name="author" content="Manrique Lopez - @jsmanrique">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="cleartype" content="on">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="HandheldFriendly" content="True">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+
+    <link rel="stylesheet" href="stylesheets/tako.css">
+    <link rel="stylesheet" href="stylesheets/tako.theme.css">
+    <!--<link rel="stylesheet" href="stylesheets/tako.android.css">
+    <link rel="stylesheet" href="stylesheets/tako.ios.css">
+    <link rel="stylesheet" href="stylesheets/tako.wp.css">
+    <link rel="stylesheet" href="stylesheets/tako.firefoxos.css">-->
+    
+    <style>
+        p {
+            text-align: center;
+            margin: 2em 0;
+        }
+        #days, #hours, #minutes, #seconds {font-size: 3rem; font-weight: bold;}
+    </style>
+</head>
+
+<body class="noflat">
+
+    <article id="article_1">
+       <header>
+           <h1>Holidays are coming!</h1>
+       </header>
+       <footer>
+           <nav>
+               <button data-section="settings" class="icon cog">Settings</button>
+           </nav>
+       </footer>
+        <section id="main">
+            <p><span id="days"></span>d <span id="hours"></span>h <span id="minutes"></span>m <span id="seconds"></span>s</p>
+        </section>
+    </article>
+    <article id="article_2">
+      <header>
+           <h1>Settings</h1>
+       </header>
+       <section id="settings" class="indented">
+            <form>
+                <fieldset>
+                    <legend>When?</legend>
+                    <label for="DateW">Date</label>
+                        <label for="DateW" class="input"><input id="DateW" type="text" placeholder="Month day, year"></label>
+                    <label for="TimeW">Time</label>
+                        <label for="TimeW" class="input"><input id="TimeW" type="time" placeholder="hh:mm"></label>
+                </fieldset>
+            </form>
+            <p>
+                <button class="wide accept" id="SaveW">Accept</button>
+                <button class="wide cancel" id="CancelW">Cancel</button>
+            </p>
+        </section>
+        
+    </article>
+
+    <script src="js/tako.components.js"></script>
+    <script src="js/tako.debug.js"></script>
+
+    <script>
+        Tako.onReady(function(){
+            console.log("READY");
+            
+            var bd = localStorage.getItem("BigDay");
+            
+            function countdowntimer() {
+                Tako.Section('main');
+                
+                var BigDay = new Date(localStorage.getItem("BigDay"));
+            
+                setInterval(function(){
+                    var today = new Date();
+                    var msPerDay = 24 * 60 * 60 * 1000 ;
+                    var timeLeft = (BigDay.getTime() - today.getTime());
+                    var e_daysLeft = timeLeft / msPerDay;
+                    var daysLeft = Math.floor(e_daysLeft);
+                    var e_hrsLeft = (e_daysLeft - daysLeft)*24;
+                    var hrsLeft = Math.floor(e_hrsLeft);
+                    var e_minLeft = (e_hrsLeft - hrsLeft)*60;
+                    var minsLeft = Math.floor(e_minLeft);
+                    var secLeft = Math.floor((e_minLeft - minsLeft)*60);
+
+                    //console.log(daysLeft, hrsLeft, minsLeft, secLeft);
+
+                    $("#days").html(daysLeft);
+                    $("#hours").html(hrsLeft);
+                    $("#minutes").html(minsLeft);
+                    $("#seconds").html(secLeft);
+
+                }, 1000); 
+                
+            };
+            
+            if (bd == null) {
+                Tako.Notification.error("deny", "Warning!","You need to set up date and time when your holidays start", null, function(){console.log("bd null")});
+                Tako.Section('settings');
+            } else {
+                
+                countdowntimer();
+            };
+            
+            $("#SaveW").bind('tap', function(){
+                if ($("#DateW").val() == "" || $("#TimeW").val() == "") {
+                    Tako.Notification.error("deny", "Warning!","You need to set up date and time when your holidays start", null, function(){console.log("bd null")});
+                } else {
+                    localStorage.setItem("BigDay", $("#DateW").val()+', '+$("#TimeW").val()+":00");
+                    Tako.Section('main');
+                    countdowntimer();
+                }
+            });
+            
+            $("#CancelW").bind('tap', function(){
+                
+            });
+            
+        });
+
+        Tako.init({
+            logging      : Tako.logging.LOG,
+            urlNavigation: true
+        });
+        
+        window.logger = function(){
+            console.log.apply(console, arguments)
+        };
+    </script>
+</body>
+</html>
