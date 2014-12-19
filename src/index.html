@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="stylesheets/tako.ios.css">
     <link rel="stylesheet" href="stylesheets/tako.wp.css">
     <link rel="stylesheet" href="stylesheets/tako.firefoxos.css">-->
-    
+
     <style>
         p {
             text-align: center;
@@ -55,17 +55,17 @@
                 <fieldset>
                     <legend>When?</legend>
                     <label for="DateW">Date</label>
-                        <label for="DateW" class="input"><input id="DateW" type="text" placeholder="Month day, year"></label>
+                        <label for="DateW" class="input"><input id="DateW" type="date" placeholder="yyyyy-mm-dd"></label>
                     <label for="TimeW">Time</label>
                         <label for="TimeW" class="input"><input id="TimeW" type="time" placeholder="hh:mm"></label>
                 </fieldset>
             </form>
             <p>
-                <button class="wide accept" id="SaveW">Accept</button>
-                <button class="wide cancel" id="CancelW">Cancel</button>
+                <button class="wide accept icon ok" id="SaveW">Accept</button>
+                <button class="wide cancel icon deny" id="CancelW">Remove</button>
             </p>
         </section>
-        
+
     </article>
 
     <script src="js/tako.components.js"></script>
@@ -74,66 +74,61 @@
     <script>
         Tako.onReady(function(){
             console.log("READY");
-            
+
             var bd = localStorage.getItem("BigDay");
             
-            function countdowntimer() {
-                Tako.Section('main');
-                
-                var BigDay = new Date(localStorage.getItem("BigDay"));
-            
-                setInterval(function(){
-                    var today = new Date();
-                    var msPerDay = 24 * 60 * 60 * 1000 ;
-                    var timeLeft = (BigDay.getTime() - today.getTime());
-                    var e_daysLeft = timeLeft / msPerDay;
-                    var daysLeft = Math.floor(e_daysLeft);
-                    var e_hrsLeft = (e_daysLeft - daysLeft)*24;
-                    var hrsLeft = Math.floor(e_hrsLeft);
-                    var e_minLeft = (e_hrsLeft - hrsLeft)*60;
-                    var minsLeft = Math.floor(e_minLeft);
-                    var secLeft = Math.floor((e_minLeft - minsLeft)*60);
+            function displayTime() {
+                var today = new Date();
+                var msPerDay = 24 * 60 * 60 * 1000 ;
+                var timeLeft = (BigDay.getTime() - today.getTime());
+                var e_daysLeft = timeLeft / msPerDay;
+                var daysLeft = Math.floor(e_daysLeft);
+                var e_hrsLeft = (e_daysLeft - daysLeft)*24;
+                var hrsLeft = Math.floor(e_hrsLeft);
+                var e_minLeft = (e_hrsLeft - hrsLeft)*60;
+                var minsLeft = Math.floor(e_minLeft);
+                var secLeft = Math.floor((e_minLeft - minsLeft)*60);
 
-                    //console.log(daysLeft, hrsLeft, minsLeft, secLeft);
-
-                    $("#days").html(daysLeft);
-                    $("#hours").html(hrsLeft);
-                    $("#minutes").html(minsLeft);
-                    $("#seconds").html(secLeft);
-
-                }, 1000); 
-                
+                $("#days").html(daysLeft);
+                $("#hours").html(hrsLeft);
+                $("#minutes").html(minsLeft);
+                $("#seconds").html(secLeft);
             };
-            
+
             if (bd == null) {
                 Tako.Notification.error("deny", "Warning!","You need to set up date and time when your holidays start", null, function(){console.log("bd null")});
                 Tako.Section('settings');
             } else {
-                
-                countdowntimer();
+                var BigDay = new Date(bd);
+                var countdownTimer = setInterval(function(){displayTime();}, 1000);
             };
-            
+
             $("#SaveW").bind('tap', function(){
                 if ($("#DateW").val() == "" || $("#TimeW").val() == "") {
-                    Tako.Notification.error("deny", "Warning!","You need to set up date and time when your holidays start", null, function(){console.log("bd null")});
+                    Tako.Notification.error("deny", "Warning!","You need to set up date and time when your holidays start", null, function(){console.log("date and/or time empty")});
                 } else {
-                    localStorage.setItem("BigDay", $("#DateW").val()+', '+$("#TimeW").val()+":00");
+                    bd = $("#DateW").val()+', '+$("#TimeW").val()+":00";
+                    var BigDay = new Date(bd);
                     Tako.Section('main');
-                    countdowntimer();
+                    localStorage.setItem("BigDay", bd);
+                    location.reload();
+                    var countdownTimer = setInterval(function(){displayTime();}, 1000);
                 }
             });
-            
+
             $("#CancelW").bind('tap', function(){
-                
+                $("#DateW").val("");
+                $("#TimeW").val("");
+                localStorage.clear();
             });
-            
+
         });
 
         Tako.init({
             logging      : Tako.logging.LOG,
             urlNavigation: true
         });
-        
+
         window.logger = function(){
             console.log.apply(console, arguments)
         };
