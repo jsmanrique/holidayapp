@@ -54,8 +54,29 @@
             <form>
                 <fieldset>
                     <legend>When?</legend>
-                    <label for="DateW">Date</label>
-                        <label for="DateW" class="input"><input id="DateW" type="date" placeholder="yyyyy-mm-dd"></label>
+                    <label for="MonthW">Month</label>
+                    <label class="select">
+                        <select name="" id="MonthW">
+                            <option value="January">January</option>
+                            <option value="February">February</option>
+                            <option value="March">March</option>
+                            <option value="April">April</option>
+                            <option value="May">May</option>
+                            <option value="June">June</option>
+                            <option value="July">July</option>
+                            <option value="August">August</option>
+                            <option value="September">September</option>
+                            <option value="October">October</option>
+                            <option value="November">November</option>
+                            <option value="December">December</option>
+                        </select>
+                    </label>
+                    <label for="DayW">Day</label>
+                        <label for="DayW" class="input"><input id="DayW" type="number" placeholder="dd"></label>
+                    <label for="YearW">Year</label>
+                        <label for="YearW" class="input"><input id="YearW" type="number" placeholder="yyyy"></label>
+                    <!--<label for="DateW">Date</label>
+                        <label for="DateW" class="input"><input id="DateW" type="date" placeholder="yyyyy-mm-dd"></label>-->
                     <label for="TimeW">Time</label>
                         <label for="TimeW" class="input"><input id="TimeW" type="time" placeholder="hh:mm"></label>
                 </fieldset>
@@ -73,7 +94,6 @@
 
     <script>
         Tako.onReady(function(){
-            console.log("READY");
 
             var bd = localStorage.getItem("BigDay");
             
@@ -100,14 +120,16 @@
                 Tako.Section('settings');
             } else {
                 var BigDay = new Date(bd);
+                console.log("BD:" + BigDay);
                 var countdownTimer = setInterval(function(){displayTime();}, 1000);
             };
 
             $("#SaveW").bind('tap', function(){
-                if ($("#DateW").val() == "" || $("#TimeW").val() == "") {
+                console.log("Save clicked");
+                if ($("#MonthW").val() == "" || $("#YearW").val() == "" || $("#DayW").val() == "" || $("#TimeW").val() == "") {
                     Tako.Notification.error("deny", "Warning!","You need to set up date and time when your holidays start", null, function(){console.log("date and/or time empty")});
                 } else {
-                    bd = $("#DateW").val()+', '+$("#TimeW").val()+":00";
+                    bd = $("#MonthW").val()+' '+$("#DayW").val()+', '+$("#YearW").val()+' '+$("#TimeW").val()+":00";
                     var BigDay = new Date(bd);
                     Tako.Section('main');
                     localStorage.setItem("BigDay", bd);
@@ -117,9 +139,12 @@
             });
 
             $("#CancelW").bind('tap', function(){
-                $("#DateW").val("");
+                //$("#MonthW").val("");
+                $("#DayW").val("");
+                $("#YearW").val("");
                 $("#TimeW").val("");
                 localStorage.clear();
+                Tako.Notification.success("ok", "Data removed!","All data has been removed", null, function(){console.log("data removed")});
             });
 
         });
